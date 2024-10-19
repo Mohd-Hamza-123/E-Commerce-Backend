@@ -6,6 +6,79 @@ import { CategoryModel } from "../models/category.model";
 import { UserModel } from "../models/user.model";
 import { filterTruthyValues } from "../helpers/filter-truthy-values";
 import { deleteFile } from "../config/connectCloudinary";
+import mongoose from "mongoose";
+
+
+const createDummyProduct = async (req: Request, res: Response): Promise<Response> => {
+    try {
+
+
+        async function createProductInDatabase() {
+
+            const pic = await fetch(`https://picsum.photos/300/300`)
+            if (!pic.ok) throw new Error(`Failed to fetch image: ${pic.status}`)
+            const picURL = pic.url
+
+            const catArray = ['66e053d2d025034927bb7ff1', '66e053e5d025034927bb7ff5', '66f8cf96e9a55bcfceb0840b', '66f8dace8413c0d30fe0fbc5', '66f8e43a275caee1c6245ffb']
+
+            const RESPONSE = await fetch('https://random-data-api.com/api/commerce/random_commerce')
+            if (!RESPONSE.ok) throw new Error("Jsonplaceholder error")
+            const data = await RESPONSE.json()
+
+            const name = data?.product_name
+            const price = Math.floor(data?.price + 100)
+            const inStock = true
+            const isPublished = true
+            const brand = data?.department
+            const quantity = Math.floor(Number(data?.price_string))
+            const colors = [data?.color]
+            const discountPrice = Math.floor(data?.price + 100 - 33)
+            const productOwner = new mongoose.Types.ObjectId('66ea5e8fe77b498f96d17ea4')
+            const category = new mongoose.Types.ObjectId(catArray[Math.floor(Math.random() * catArray.length)])
+            const description = `Random Number = ${Math.floor(Math.random() * 1001)}.This is a Random Description`
+            const thumbnail = [{
+                public_id: String(data?.id),
+                secure_url: picURL
+            }]
+            const creatingProduct = new ProductModel({
+                name,
+                description,
+                price,
+                inStock,
+                isPublished,
+                brand,
+                quantity,
+                category,
+                thumbnail,
+                colors,
+                discountPrice,
+                productOwner,
+            });
+            const product_created = await creatingProduct.save()
+            return product_created
+        }
+        for (let i = 0; i < 50; i++) {
+            const product = await createProductInDatabase()
+            if (product) {
+                // console.log(product)
+                console.log(`Product Created. No = ${i + 1}`)
+            } else {
+                console.log("Product not created")
+            }
+
+        }
+        return res.status(200).json({
+            success: true,
+        })
+    } catch (error: any) {
+        console.error("Error details:", error); // Log the error to console
+        return res.status(500).json({
+            message: "Error in creating product",
+            error: error.message || "Unknown error", // Provide a fallback message
+        });
+    }
+
+}
 
 const createProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -147,7 +220,7 @@ const updateProduct = async (req: Request, res: Response): Promise<Response> => 
         if (payload?.quantity) payload.quantity = Number(payload.quantity)
         if (payload?.price) payload.price = Number(payload.price)
         if (payload?.inStock) payload.inStock = Boolean(payload.inStock)
-       
+
 
         const products_updated = await ProductModel.findByIdAndUpdate(
             product._id,
@@ -228,10 +301,10 @@ const getSingleProduct = async (req: Request, res: Response): Promise<Response> 
     }
 }
 
-
 export {
     createProduct,
     updateProduct,
     deleteProduct,
     getSingleProduct,
+    createDummyProduct
 }

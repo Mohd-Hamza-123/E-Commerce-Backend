@@ -49,12 +49,15 @@ const productSchema = new Schema<IProduct>({
     price: {
         type: Number,
         required: true,
-        min: 1,
+    },
+    discountPrice: {
+        type: Number,
+        required: true,
     },
     description: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
     },
     inStock: {
         type: Boolean,
@@ -185,10 +188,7 @@ const productSchema = new Schema<IProduct>({
         _id: false,
         required: false,
     },
-    discountPrice: {
-        type: Number,
-        required: true,
-    },
+
 },
     {
         timestamps: true

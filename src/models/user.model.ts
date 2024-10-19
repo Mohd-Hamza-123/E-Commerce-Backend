@@ -17,7 +17,7 @@ interface IOrderHistory {
 }
 interface IUser {
     username: string;
-    fullName:string,
+    fullName: string,
     email: string;
     password: string;
     mobileNumber?: string;
@@ -103,7 +103,7 @@ const userSchema = new Schema<IUser>({
                 },
             }
         ],
-        id:false
+        id: false
     },
     wishlist: [
         {
@@ -121,14 +121,16 @@ const userSchema = new Schema<IUser>({
                 quantity: {
                     type: Number,
                     required: true,
-                    min: 1
+                    min: 1,
+                    default: 1,
+                },
+                totalAmount: {
+                    type: Number,
+                    default: 100
                 },
             }
         ],
-        totalAmount: {
-            type: Number,
-            default: 0
-        }
+        required: false,
     },
     orderHistory: {
         type: [

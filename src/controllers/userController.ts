@@ -11,7 +11,6 @@ import { filterTruthyValues } from "../helpers/filter-truthy-values";
 import mongoose, { isValidObjectId, ObjectId } from "mongoose";
 
 
-
 const userRegistration = async (req: Request, res: Response): Promise<Response> => {
 
     try {
@@ -46,18 +45,18 @@ const userRegistration = async (req: Request, res: Response): Promise<Response> 
             password: hashedPassword
         });
 
-        const createdUser = await createUser.save();
-        const { username: Username, email: Email, role, _id } = createdUser
+        let createdUser = await createUser.save()
+        const doc = createUser.toObject()
 
-        const payload = { Username, Email, role, _id }
 
         const token = await generateToken(createdUser._id.toString());
         if (!token) throw new Error
 
         return res.status(201).json({
             message: "Registration complete", success: true, payload: {
-                ...payload,
                 token,
+                ...doc,
+                password: '',
             }
         });
 
@@ -178,7 +177,7 @@ const updateUser = async (req: Request, res: Response): Promise<Response> => {
     try {
         const userID = req.user
         const truthyData = filterTruthyValues(req.body)
-
+        console.log(req.body)
         if (truthyData.userID !== userID) throw new Error
 
         const userExist = await UserModel.findById(userID).lean()
@@ -228,10 +227,10 @@ const deleteWishlistProduct = async (req: Request, res: Response): Promise<Respo
 
         const userID = req.user
         const { productID } = req.body
-        console.log("first")
+
         if (!userID || typeof productID !== 'string') throw new Error("product not available")
         const product_Object_ID = new mongoose.Types.ObjectId(productID)
-        console.log(product_Object_ID)
+
 
         const user = await UserModel.findByIdAndUpdate(
             userID,
@@ -260,27 +259,34 @@ const deleteWishlistProduct = async (req: Request, res: Response): Promise<Respo
 
 const addWishlistProduct = async (req: Request, res: Response): Promise<Response> => {
     try {
+
         const userID = req.user
         const { productID } = req.body
-
         if (!userID || typeof productID !== 'string') throw new Error("product not available")
         const product_Object_ID = new mongoose.Types.ObjectId(productID)
+        const wishlist = await UserModel.findById(userID).select('wishlist -_id').lean();
+        const wishlist_array = wishlist?.wishlist;
+        if (!Array.isArray(wishlist_array)) throw new Error
+        if (wishlist_array.includes(product_Object_ID)) {
 
-        const user = await UserModel.findByIdAndUpdate(userID,
-            { $push: { wishlist: product_Object_ID } },
-            { new: true }
-        ).select("-password").lean()
-        let token;
-      
-        if (user) token = await generateToken(userID, '1d');
-      
-        return res.status(200).json({
-            success: true,
-            message: 'Product added in bookmark',
-            payload: { ...user, token }
-        })
+            return res.status(200).json({
+                success: true,
+                message: 'Product already in wishlist',
+            })
+        } else {
+            const user = await UserModel.findByIdAndUpdate(userID,
+                { $push: { wishlist: product_Object_ID } },
+                { new: true }
+            ).select("-password").lean()
+            let token;
 
-
+            if (user) token = await generateToken(userID, '1d');
+            return res.status(200).json({
+                success: true,
+                message: 'Product added in wishlist',
+                payload: { ...user, token }
+            })
+        }
     } catch (error) {
         return res.status(500).json({
             success: false,
@@ -290,4 +296,62 @@ const addWishlistProduct = async (req: Request, res: Response): Promise<Response
     }
 }
 
-export { userRegistration, userLogin, sendResetPasswordEmail, resetPassword, updateUser, deleteWishlistProduct, addWishlistProduct }
+const addProductInCart = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        if (!req.body) throw new Error("Data not recieved at server")
+        const userID = req.user
+        const { productID } = req.body;
+        if (!userID || !productID || typeof productID !== 'string') throw new Error("user or product not exist")
+
+        const product_Object_ID = new mongoose.Types.ObjectId(productID)
+        const cart = {
+            productID: product_Object_ID,
+        }
+        console.log(product_Object_ID)
+        const user = await UserModel.findByIdAndUpdate(userID,
+            { $push: { cart } },
+            { new: true }
+        ).select("-password").lean()
+
+        const token = await generateToken(userID, '2d')
+        console.log(user)
+        return res.status(200).json({ success: true, message: "Product add in cart", payload: { ...user, token } })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error })
+    }
+}
+
+const removeProductInCart = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        if (!req.body) throw new Error("Data not recieved at server")
+        const userID = req.user
+        const { productID } = req.body
+        if (!userID || !productID || typeof productID !== 'string') throw new Error("user or product not exist")
+
+        const product_Object_ID = new mongoose.Types.ObjectId(productID)
+
+        const user = await UserModel.findByIdAndUpdate(userID,
+            { $pull: { cart: { productID: product_Object_ID } } },
+            { new: true }
+        ).select("-password").lean()
+
+        console.log(user)
+        const token = await generateToken(userID, '2d');
+        return res.status(200).json({ success: true, message: "Product add in cart", payload: { ...user, token } })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error", error })
+    }
+}
+
+
+export {
+    userRegistration,
+    userLogin,
+    sendResetPasswordEmail,
+    resetPassword,
+    updateUser,
+    deleteWishlistProduct,
+    addWishlistProduct,
+    addProductInCart,
+    removeProductInCart
+}

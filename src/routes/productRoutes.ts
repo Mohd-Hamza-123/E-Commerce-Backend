@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createProduct, deleteProduct, getSingleProduct, updateProduct } from "../controllers/productController";
+import { createDummyProduct, createProduct, deleteProduct, getSingleProduct, updateProduct } from "../controllers/productController";
 import { checkUserAuthorized, userIsAdmin, userIsAdminOrSuperUser } from "../middlewares/auth-middleware";
 import multer from "multer";
 // import { uploadFile } from "../middlewares/file-middleware";
@@ -21,6 +21,7 @@ const router = Router();
 // public routes
 router.get('/get-single-product/:id', getSingleProduct);
 
+router.post('/create-dummy', createDummyProduct);
 
 // protected routes
 

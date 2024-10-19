@@ -18,12 +18,12 @@ interface CustomJwtPayload extends JwtPayload {
 const checkUserAuthorized: RequestHandler = (req, res, next) => {
     try {
 
-        const { authorization } = req.headers as { authorization?: string | undefined }
-
+        const { authorization } = req.headers as { authorization?: any }
+        console.log(authorization)
         const { userID: ID } = req.body;
-      
-        if (authorization && jwt_secret_key) {
 
+
+        if (authorization && jwt_secret_key) {
             let token;
             if (authorization.startsWith("Bearer")) {
                 token = authorization.split(" ")[1];
@@ -33,7 +33,9 @@ const checkUserAuthorized: RequestHandler = (req, res, next) => {
             }
 
             const { userID } = jwt.verify(token, ID + jwt_secret_key) as CustomJwtPayload
+
             req.user = userID
+
             next()
         }
     } catch (error) {

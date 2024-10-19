@@ -8,11 +8,12 @@ const bannerSchema = new Schema(
                     public_id: {
                         type: String,
                     },
-                    secureURL: {
+                    secure_url: {
                         type: String
                     }
                 }
             ],
+            _id: false,
             require: true,
             validate: {
                 validator: function (x: any) {
@@ -20,7 +21,11 @@ const bannerSchema = new Schema(
                 },
                 message: (props: any) => `Images should be less than equal to ${props.value.length}`
             }
-        }
+        },
+        userID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'UserModel'
+        },
     }
 )
 

@@ -7,53 +7,66 @@ import { deleteFile, uploadImageOnCloudinary } from "../config/connectCloudinary
 const createCategory = async (req: Request, res: Response): Promise<Response> => {
 
     try {
+        const { role } = req
         const { name, gender } = req.body
-        const role = req.role
-        if (role !== "superUser" || !name || !gender) throw new Error
 
-        let image: any = req.file?.path
+        if (!role || role !== 'superUser')
+            return res.status(403).json({
+                success: false,
+                message: "Permission denied.",
+            });
 
-        if (image) image = await uploadImageOnCloudinary(image)
-
-        if (image)
-            image = {
-                public_id: image.public_id,
-                secure_url: image.secure_url
-            }
-        else image = ""
-
+        if (!name || !gender)
+            return res.status(400).json({
+                success: false,
+                message: "Name and Gender are required fields.",
+            });
 
         const existingCategory = await CategoryModel.findOne({ name })
+        if (existingCategory)
+            return res.status(409).json({
+                success: true,
+                message: "Category Already Exists",
+                payload: null,
+            })
 
-        if (existingCategory) return res.status(201).json({
-            success: true,
-            message: "Category Already Exists",
-        })
-
-        const creatingCategory = new CategoryModel({
+        const payloadToCreate: any = {
             name,
+            gender,
             slug: slugify(name),
-            image,
-            gender
-        })
+        };
+
+        let image: string | undefined = req.file?.path
+
+        if (image) {
+            const uploadedImage = await uploadImageOnCloudinary(image)
+            payloadToCreate.image = {
+                public_id: uploadedImage?.public_id,
+                secure_url: uploadedImage?.secure_url
+            }
+        }
+
+        const creatingCategory = new CategoryModel(payloadToCreate)
 
         const createdCategory = await creatingCategory.save()
+        console.log(createdCategory)
 
         return res.status(201).json({
             success: true,
             message: "Category Created",
-            createdCategory
+            payload: createdCategory
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             success: false,
-            message: "category not created",
+            message: "Internal Server Error.",
             error
         })
     }
-
-
 }
+
+
 const updateCategory = async (req: Request, res: Response): Promise<Response> => {
 
     try {
@@ -143,7 +156,7 @@ const getAllCategory = async (req: Request, res: Response): Promise<Response> =>
     console.log("hello")
     try {
         const allCategory = await CategoryModel.find();
-       
+
         if (allCategory) return res.status(200).json({
             success: true,
             message: "All category is here",
