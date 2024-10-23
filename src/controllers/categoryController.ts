@@ -36,10 +36,10 @@ const createCategory = async (req: Request, res: Response): Promise<Response> =>
             slug: slugify(name),
         };
 
-        let image: string | undefined = req.file?.path
+        const imagePath: string | undefined = req.file?.path
 
-        if (image) {
-            const uploadedImage = await uploadImageOnCloudinary(image)
+        if (imagePath) {
+            const uploadedImage = await uploadImageOnCloudinary(imagePath)
             payloadToCreate.image = {
                 public_id: uploadedImage?.public_id,
                 secure_url: uploadedImage?.secure_url

@@ -258,13 +258,12 @@ const deleteProduct = async (req: Request, res: Response): Promise<Response> => 
         const results = await Promise.all(imageDeletion)
         return res.status(200).json({
             success: true,
-            message: "Product updated successfully",
-            error: false
+            message: "Product deleted successfully",
         })
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Product not updated",
+            message: "Product not deleted",
             error: error
         })
     }

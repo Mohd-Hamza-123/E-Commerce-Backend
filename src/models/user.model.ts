@@ -126,7 +126,8 @@ const userSchema = new Schema<IUser>({
                 },
                 totalAmount: {
                     type: Number,
-                    default: 100
+                    default: 0,
+                    min: 0
                 },
             }
         ],

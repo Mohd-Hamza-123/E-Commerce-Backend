@@ -15,11 +15,16 @@ import {
 
 const router = Router();
 
-const uploader = multer({
-    storage: multer.diskStorage({}),
-    limits: { fileSize: 1024 * 1024 * 10 }
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './src/temp')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
 })
 
+const upload = multer({ storage: storage, limits: { fileSize: 1024 * 1024 * 10 } })
 // public routes
 
 router.get("/get-category", getAllCategory);
@@ -27,9 +32,18 @@ router.get("/single-category/:slug", getSingleCategory)
 
 // protected Routes
 
+router.post(
+    "/create-category",
+    upload.single("image"),
+    checkUserAuthorized,
+    userIsSuperUser,
+    createCategory
+);
+
+
 router.put(
     "/update-category/:categoryID",
-    uploader.single("image"),
+    upload.single("image"),
     checkUserAuthorized,
     userIsSuperUser,
     updateCategory
@@ -42,12 +56,5 @@ router.delete(
     deleteCategory
 );
 
-router.post(
-    "/create-category",
-    uploader.single("image"),
-    checkUserAuthorized,
-    userIsSuperUser,
-    createCategory
-);
 
 export default router

@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
 import Joi from "joi";
-import { UserModel } from "../models/user.model";
 import bcrypt from "bcrypt"
-import { generateToken, hashPassword } from "../helpers/authHelper";
-import { validateLogin, validateRegistration } from "../helpers/validationHelper";
 import jwt from "jsonwebtoken"
 import { jwt_secret_key } from "../server";
+import { Request, Response } from "express";
+import { UserModel } from "../models/user.model";
 import { send_Email } from "../config/mail-send";
+import { generateToken, hashPassword } from "../helpers/authHelper";
+import { validateLogin, validateRegistration } from "../helpers/validationHelper";
 import { filterTruthyValues } from "../helpers/filter-truthy-values";
 import mongoose, { isValidObjectId, ObjectId } from "mongoose";
 

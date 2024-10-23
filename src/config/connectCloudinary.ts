@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME } from '../server';
-
+import fs from "fs"
 
 // Configuration
 export async function connectCloudinary() {
@@ -23,9 +23,10 @@ export async function connectCloudinary() {
 export const uploadImageOnCloudinary = async (filePath: string) => {
     try {
         const uploadResult = await cloudinary.uploader.upload(filePath)
-        // console.log(uploadResult)
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         return uploadResult
     } catch (error) {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         return null
     }
 }
