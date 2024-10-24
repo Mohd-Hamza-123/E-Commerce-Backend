@@ -10,7 +10,7 @@ dotenv.config({ path: './.env' });
 
 // Env Variables
 export const client_URL = process.env.CLIENT_URL
-export const port = process.env.PORT || 8080
+export const port = process.env.PORT || 4000
 export const mongoDBURI = process.env.MONGO_URI
 export const jwt_secret_key = process.env.JWT_SECRET_KEY
 export const EMAIL_HOST = process.env.EMAIL_HOST
