@@ -9,6 +9,7 @@ import { connectCloudinary } from "./config/connectCloudinary";
 dotenv.config({ path: './.env' });
 
 // Env Variables
+export const client_URL = process.env.CLIENT_URL
 export const port = process.env.PORT || 8080
 export const mongoDBURI = process.env.MONGO_URI
 export const jwt_secret_key = process.env.JWT_SECRET_KEY
