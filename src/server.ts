@@ -30,9 +30,9 @@ connectDB()
       console.log(`Server is running at port : ${port}`)
     })
   })
-  // .then(() => {
-  //   connect_nodemailer()
-  // })
+  .then(() => {
+    connect_nodemailer()
+  })
   .then(() => {
     connectCloudinary()
   })

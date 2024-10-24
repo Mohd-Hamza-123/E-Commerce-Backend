@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Backend of E-commerce",
-  "main": "server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
     "start": "nodemon ./dist/src/server.js",
