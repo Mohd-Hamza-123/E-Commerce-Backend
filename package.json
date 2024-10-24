@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Backend of E-commerce",
-  "main": "dist/src/server.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node ./dist/src/server.js",
+    "start": "node ./dist/server.js",
     "dev": "concurrently \"tsc --watch\" \"nodemon ./dist/src/server.js\""
   },
   "keywords": [
